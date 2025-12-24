@@ -59,24 +59,50 @@
             setTimeout(createStar, i * 200);
         }
 
-        // Control de audio
-        const audio = document.getElementById('backgroundMusic');
-        const audioControl = document.getElementById('audioControl');
-        const audioIcon = document.getElementById('audioIcon');
+         // Control de audio
+        let audio;
+        let audioControl;
+        let audioIcon;
         let isPlaying = false;
 
         function toggleAudio() {
+            if (!audio) {
+                console.error('Audio element not found');
+                return;
+            }
+            
             if (isPlaying) {
                 audio.pause();
                 audioIcon.textContent = '🎵';
                 audioControl.style.animation = 'none';
             } else {
-                audio.play();
+                audio.play().catch(err => {
+                    console.error('Error playing audio:', err);
+                    alert('No se puede reproducir la música. Verifica que el archivo exista en la ubicación correcta.');
+                });
                 audioIcon.textContent = '🔊';
                 audioControl.style.animation = 'pulse 2s ease-in-out infinite';
             }
             isPlaying = !isPlaying;
         }
+
+        // Intenta reproducir automáticamente (algunos navegadores lo bloquean)
+        window.addEventListener('load', () => {
+            audio = document.getElementById('backgroundMusic');
+            audioControl = document.getElementById('audioControl');
+            audioIcon = document.getElementById('audioIcon');
+            
+            if (audio) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    audioIcon.textContent = '🔊';
+                    audioControl.style.animation = 'pulse 2s ease-in-out infinite';
+                }).catch(() => {
+                    // Si falla la reproducción automática, el usuario puede hacer clic
+                    console.log('Click en el botón de música para reproducir');
+                });
+            }
+        });
 
         // Intenta reproducir automáticamente (algunos navegadores lo bloquean)
         window.addEventListener('load', () => {
